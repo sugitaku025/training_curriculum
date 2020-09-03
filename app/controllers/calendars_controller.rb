@@ -15,7 +15,7 @@ class CalendarsController < ApplicationController
   private
 
   def plan_params
-    params.require(:calendars).permit(:date, :plan)
+    params.require(:plan).permit(:date, :plan)
   end
 
   def get_week
@@ -34,9 +34,17 @@ class CalendarsController < ApplicationController
       plan = plans.map do |plan|
         today_plans.push(plan.plan) if plan.date == @todays_date + x
       end
-      days = { month: (@todays_date + x).month, date: (@todays_date+x).day, plans: today_plans}
+      # x(0~6)の加算で繰り上がった日にちからwdayで曜日を数値化する
+      wday_num = (@todays_date + x).wday
+      if wday_num >= 7
+        wday_num = wday_num - 7
+      end
+      # x(0~6)を@tudays_date(2020-09-02)に7回加算(1回目:02+0, 2回目:02+1 ...) month→日付から月を1~12で返す、day→日にちを1~31で返す
+      days = { month: (@todays_date + x).month, date: (@todays_date+ x).day, plans: today_plans, wday: "#{wdays[wday_num]}"}
       @week_days.push(days)
     end
 
   end
 end
+# 2020-09-02
+# -> 3 = wed 
